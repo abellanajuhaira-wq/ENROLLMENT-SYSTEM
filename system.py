@@ -44,7 +44,7 @@ def assign_section(year_level):
             return sec
     return f"{year_level}D"
 
-# Subject Database (simplified with 3 units default)
+# Subject Database
 SUBJECTS = {
     "BSHM": {
         "1": {
@@ -176,31 +176,54 @@ def save_student(data):
     shutil.copy(MAIN_FILE, REGISTRAR_FILE)
     shutil.copy(MAIN_FILE, LIBRARIAN_FILE)
 
+# Validation functions
+def get_valid_name(prompt="Full Name: "):
+    while True:
+        name = input(prompt).strip()
+        if all(c.isalpha() or c in " -'" for c in name) and name:
+            return name
+        print("⚠️ Invalid input! Only letters, spaces, hyphens, or apostrophes allowed.")
+
+def get_valid_phone(prompt="Phone Number (11 digits): "):
+    while True:
+        phone = input(prompt).strip()
+        if phone.isdigit() and len(phone) == 11:
+            return phone
+        print("⚠️ Invalid phone number! Must be 11 digits.")
+
+def get_valid_postal(prompt="Postal Code: "):
+    while True:
+        postal = input(prompt).strip()
+        if postal.isdigit():
+            return postal
+        print("⚠️ Invalid postal code! Only digits allowed.")
+
 # Enrollment process
 def enroll_student():
     print("\n--- Student Registration ---")
     student_number = generate_student_number()
-    name = input("Full Name: ")
+    name = get_valid_name("Full Name: ")
+    
     birthdate_str = input("Birthdate (YYYY-MM-DD): ")
-    birthdate = datetime.strptime(birthdate_str, "%Y-%m-%d")
+    try:
+        birthdate = datetime.strptime(birthdate_str, "%Y-%m-%d")
+    except ValueError:
+        print("⚠️ Invalid birthdate format!")
+        return
+
     age = int(input("Age: "))
     if age != (datetime.now().year - birthdate.year):
         print("⚠️ Age and birthdate do not match!")
         return
-    sex = input("Sex (M/F): ")
-    phone = input("Phone Number (11 digits): ")
-    if not (phone.isdigit() and len(phone) == 11):
-        print("⚠️ Invalid phone number!")
-        return
-    emergency_contact = input("Emergency Contact Person: ")
-    emergency_number = input("Emergency Contact Number: ")
+
+    sex = input("Sex (M/F): ").upper()
+    phone = get_valid_phone()
+    emergency_contact = get_valid_name("Emergency Contact Person: ")
+    emergency_number = get_valid_phone("Emergency Contact Number: ")
     street = input("Street Name: ")
     city = input("City/Municipality: ")
     province = input("Province: ")
-    postal = input("Postal Code: ")
-    if not postal.isdigit():
-        print("⚠️ Invalid postal code!")
-        return
+    postal = get_valid_postal()
     status = input("Status: ")
     nationality = input("Nationality: ")
 
@@ -261,7 +284,7 @@ def main_menu():
         elif choice == "2":
             view_students()
         elif choice == "3":
-            print("Exiting system...")
+            print("Thank you for choosing Norzagaray College...")
             break
         else:
             print("Invalid choice. Try again.")
